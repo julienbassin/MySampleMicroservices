@@ -72,11 +72,13 @@ namespace Play.Catalog.Service.Controllers
         [HttpDelete("{Id}")]
         public IActionResult Delete(Guid Id)
         {
-            var currentItem = items.Where(i => i.Id == Id).SingleOrDefault();
-            if (currentItem == null)
-                throw new ArgumentNullException(nameof(currentItem));
-
             var index = items.FindIndex(currentItem => currentItem.Id == Id);
+
+            if (index < 0)
+            {
+                return NotFound();
+            }
+
             items.RemoveAt(index);
 
             return new NoContentResult();
