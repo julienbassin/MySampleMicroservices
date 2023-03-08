@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Play.Catalog.Service.Data;
 
 namespace Play.Catalog.Service
 {
@@ -30,7 +31,8 @@ namespace Play.Catalog.Service
         public void ConfigureServices(IServiceCollection services)
         {
             // this is an initialization point for those services can be used anywhere in the application
-            // 
+            services.Configure<DatabaseSettings>(
+                Configuration.GetSection("MongoConnection"));
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
