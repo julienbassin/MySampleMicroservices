@@ -17,8 +17,9 @@ namespace Play.Catalog.Service.Repositories
         private readonly MongoClient _client;
         private readonly IMongoDatabase _database;
 
+        IOptions<DatabaseSettings> dbOptions;
         public readonly FilterDefinitionBuilder<Item> filterBuilder = Builders<Item>.Filter;
-        public ItemsRepository(IOptions<DatabaseSettings> dbOptions)
+        public ItemsRepository()
         {
             var settings = dbOptions.Value;
             _client = new MongoClient(settings.ConnectionString);

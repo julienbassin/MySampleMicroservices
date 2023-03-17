@@ -33,7 +33,10 @@ namespace Play.Catalog.Service
             // this is an initialization point for those services can be used anywhere in the application
             services.Configure<DatabaseSettings>(
                 Configuration.GetSection("MongoConnection"));
-            services.AddControllers();
+            services.AddControllers(options =>
+            {
+                options.SuppressAsyncSuffixInActionNames = false;
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Play.Catalog.Service", Version = "v1" });
