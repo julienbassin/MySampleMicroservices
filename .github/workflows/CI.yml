@@ -22,13 +22,13 @@ jobs:
         dotnet-version: 7.0.x
     - name: Restore dependencies
       run: dotnet restore
-      working-directory: MySampleMicroservices/Play.Catalog/src/Play.Catalog.Service
+      working-directory: Play.Catalog/src/Play.Catalog.Service
     - name: Build
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish MySampleMicroservices/Play.Catalog/src/Play.Catalog.Service/MySampleMicroservices.csproj -c Release -o Artifact/MySampleMicroservices
+      run: dotnet publish Play.Catalog/src/Play.Catalog.Service/MySampleMicroservices.csproj -c Release -o Artifact/MySampleMicroservices
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3
       with:
