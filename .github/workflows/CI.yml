@@ -33,5 +33,5 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Play.Catalog
-        path: Artifact/
+        path: Play.Catalog/src/Play.Catalog.Service
         if-no-files-found: error
