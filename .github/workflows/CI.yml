@@ -33,5 +33,5 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: MySampleMicroservices
-        path: SimpleFeedReader/website/**
+        path: Artifact/
         if-no-files-found: error
