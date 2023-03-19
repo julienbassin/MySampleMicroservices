@@ -27,7 +27,7 @@ jobs:
       run: dotnet build --no-restore
       working-directory: Play.Catalog/src/Play.Catalog.Service
     - name: Publish
-      run: dotnet publish MySampleMicroservices.csproj -c Release -o Play.Catalog
+      run: dotnet publish Play.Catalog/src/Play.Catalog.Service/MySampleMicroservices.csproj -c Release -o Play.Catalog
       working-directory: Play.Catalog/src/Play.Catalog.Service
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3
