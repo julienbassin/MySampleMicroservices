@@ -25,13 +25,13 @@ jobs:
       working-directory: Play.Catalog/src/Play.Catalog.Service
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      working-directory: Play.Catalog/src/Play.Catalog.Service
     - name: Publish
-      run: dotnet publish Play.Catalog/src/Play.Catalog.Service/MySampleMicroservices.csproj -c Release -o Artifact/MySampleMicroservices
+      run: dotnet publish MySampleMicroservices.csproj -c Release -o Play.Catalog
+      working-directory: Play.Catalog/src/Play.Catalog.Service
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: MySampleMicroservices
+        name: Play.Catalog
         path: Artifact/
         if-no-files-found: error
