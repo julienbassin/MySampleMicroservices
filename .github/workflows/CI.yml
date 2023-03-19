@@ -19,10 +19,19 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
     - name: Restore dependencies
       run: dotnet restore
+      working-directory: MySampleMicroservices/Play.Catalog/src/Play.Catalog.Service
     - name: Build
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Publish
+      run: dotnet publish MySampleMicroservices/Play.Catalog/src/Play.Catalog.Service/MySampleMicroservices.csproj -c Release -o Artifact/MySampleMicroservices
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: MySampleMicroservices
+        path: SimpleFeedReader/website/**
+        if-no-files-found: error
