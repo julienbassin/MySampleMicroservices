@@ -15,11 +15,13 @@ namespace Play.Catalog.Service.Controllers
     [Route("items")]
     public class ItemsController : ControllerBase
     {
-        private readonly ItemsRepository itemsRepository = new();
+        private readonly IItemsRepository itemsRepository;
         private readonly ILogger<ItemsController> _logger;
-        public ItemsController(ILogger<ItemsController> logger)
+        public ItemsController(ILogger<ItemsController> logger,
+                                IItemsRepository itemsRepository)
         {
             _logger = logger;
+            this.itemsRepository = itemsRepository;
         }
 
         [HttpGet()]
