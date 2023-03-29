@@ -10,22 +10,25 @@ using Play.Catalog.Service.Entities;
 
 namespace Play.Catalog.Service.Repositories
 {
-    public class ItemsRepository
+    public class ItemsRepository : IItemsRepository
     {
         public const string collectionName = "items";
         public readonly IMongoCollection<Item> dbCollection;
         private readonly MongoClient _client;
-        private readonly IMongoDatabase _database;
-
+        // private readonly IMongoDatabase _database;
         public readonly FilterDefinitionBuilder<Item> filterBuilder = Builders<Item>.Filter;
-        public ItemsRepository(IOptions<DatabaseSettings> dbOptions)
-        {
-            var settings = dbOptions.Value;
-            _client = new MongoClient(settings.ConnectionString);
-            _database = _client.GetDatabase(settings.DatabaseName);
-            dbCollection = _database.GetCollection<Item>(collectionName);
-        }
+        // public ItemsRepository(IOptions<DatabaseSettings> dbOptions)
+        // {
+        //     var settings = dbOptions.Value;
+        //     _client = new MongoClient(settings.ConnectionString);
+        //     _database = _client.GetDatabase(settings.DatabaseName);
+        //     dbCollection = _database.GetCollection<Item>(collectionName);
+        // }
 
+        public ItemsRepository(IMongoDatabase database)
+        {
+            dbCollection = database.GetCollection<Item>(collectionName);
+        }
         public async Task<IReadOnlyCollection<Item>> GetAllAsync()
         {
             return await dbCollection.Find(filterBuilder.Empty).ToListAsync();
