@@ -8,17 +8,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Play.Catalog.Service.Dtos;
 using Play.Catalog.Service.Entities;
-using Play.Catalog.Service.Repositories;
+using Play.Common;
 namespace Play.Catalog.Service.Controllers
 {
     [ApiController]
     [Route("items")]
     public class ItemsController : ControllerBase
     {
-        private readonly IItemsRepository itemsRepository;
+        private readonly IRepository<Item> itemsRepository;
         private readonly ILogger<ItemsController> _logger;
         public ItemsController(ILogger<ItemsController> logger,
-                                IItemsRepository itemsRepository)
+                                IRepository<Item> itemsRepository)
         {
             _logger = logger;
             this.itemsRepository = itemsRepository;
