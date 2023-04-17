@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Play.Catalog.Service.Dtos;
 using Play.Catalog.Service.Entities;
-using Play.Catalog.Service.Repositories;
+using Play.Common;
 namespace Play.Catalog.Service.Controllers
 {
     [ApiController]
