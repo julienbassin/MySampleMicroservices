@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Play.Common.MongoDb;
+using Play.Inventory.Service.Clients;
 using Play.Inventory.Service.Entities;
 
 namespace Play.Inventory.Service
@@ -24,6 +26,11 @@ namespace Play.Inventory.Service
 
             services.AddMongo()
                     .AddMongoRepository<InventoryItem>("inventoryitems");
+
+            services.AddHttpClient<CatalogClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5001");
+            });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
