@@ -9,6 +9,9 @@ using Microsoft.Extensions.Logging;
 using Play.Catalog.Service.Dtos;
 using Play.Catalog.Service.Entities;
 using Play.Common;
+using MassTransit;
+using Play.Catalog.Contracts;
+
 namespace Play.Catalog.Service.Controllers
 {
     [ApiController]
@@ -16,37 +19,24 @@ namespace Play.Catalog.Service.Controllers
     public class ItemsController : ControllerBase
     {
         private readonly IRepository<Item> itemsRepository;
-        private static int requestCounter = 0;
+
+        private readonly IPublishEndpoint publishEndpoint;
         private readonly ILogger<ItemsController> _logger;
         public ItemsController(ILogger<ItemsController> logger,
-                                IRepository<Item> itemsRepository)
+                                IRepository<Item> itemsRepository,
+                                IPublishEndpoint publishEndpoint)
         {
             _logger = logger;
             this.itemsRepository = itemsRepository;
+            this.publishEndpoint = publishEndpoint;
         }
 
         [HttpGet()]
         public async Task<ActionResult<IEnumerable<ItemDto>>> GetItems()
         {
-            requestCounter++;
-            Console.WriteLine($"Request {requestCounter}: Starting...");
-
-            if (requestCounter <= 2)
-            {
-                Console.WriteLine($"Request {requestCounter}: Delaying...");
-                await Task.Delay(TimeSpan.FromSeconds(10));
-            }
-
-            if (requestCounter <= 4)
-            {
-                Console.WriteLine($"Request {requestCounter}: 500 (Internal Server Error). ");
-                return StatusCode(500);
-            }
-
             var item = (await itemsRepository.GetAllAsync())
                         .Select(item => item.AsDto());
 
-            Console.WriteLine($"Request {requestCounter}: 200 (Ok). ");
             return Ok(item);
         }
 
@@ -73,7 +63,11 @@ namespace Play.Catalog.Service.Controllers
                 Price = itemDto.Price,
                 CreatedDate = DateTimeOffset.UtcNow
             };
+
+
             await itemsRepository.CreateAsync(currentItem);
+
+            await publishEndpoint.Publish(new CatalogItemCreated(currentItem.Id, currentItem.Name, currentItem.Description));
 
             return CreatedAtAction(nameof(GetByIdAsync), new { Id = currentItem.Id }, currentItem);
         }
@@ -91,6 +85,8 @@ namespace Play.Catalog.Service.Controllers
 
             await itemsRepository.UpdateAsync(currentItem);
 
+            await publishEndpoint.Publish(new CatalogItemUpdated(currentItem.Id, currentItem.Name, currentItem.Description));
+
             return new NoContentResult();
         }
 
@@ -106,6 +102,8 @@ namespace Play.Catalog.Service.Controllers
 
 
             await itemsRepository.DeleteAsync(currentItem.Id);
+
+            await publishEndpoint.Publish(new CatalogItemDeleted(currentItem.Id));
 
             return new NoContentResult();
         }
