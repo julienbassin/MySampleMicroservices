@@ -14,6 +14,7 @@ namespace Play.Catalog.Service
     public class Startup
     {
         private ServiceSettings serviceSettings;
+        private const string AllowedOriginSetting = "AllowedOrigin";
         public Startup(IConfiguration configuration)
         {
             // the startup class is getting an instance of this object IConfiguration
@@ -55,6 +56,13 @@ namespace Play.Catalog.Service
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Play.Catalog.Service v1"));
+
+                app.UseCors(builder => 
+                {
+                    builder.WithOrigins(Configuration[AllowedOriginSetting])
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                });
             }
 
             // middlewares

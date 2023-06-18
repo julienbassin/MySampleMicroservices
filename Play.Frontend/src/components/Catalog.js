@@ -20,9 +20,10 @@ export class Catalog extends Component
 
   async populateItems()
   {
-    fetch(`${window.CATALOG_ITEMS_API_URL}`)
-      .then(response => { 
-        return response.json(); 
+    fetch(`${window.CATALOG_ITEMS_API_URL}`, { mode: 'cors' })
+      .then(response =>
+      {
+        return response.json();
       })
       .then(returnedItems => this.setState({ items: returnedItems, loading: false, loadedSuccess: true }))
       .catch(err =>
@@ -106,11 +107,11 @@ export class Catalog extends Component
                           isNew={false}
                           item={item}
                           updateItemIntoState={this.updateState} />
-                    &nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;
                         <GrantItemModal
                           item={item} />
-                    &nbsp;&nbsp;&nbsp;
-                    <Button variant="danger" onClick={() => this.deleteItem(item.id)}>Delete</Button>
+                        &nbsp;&nbsp;&nbsp;
+                        <Button variant="danger" onClick={() => this.deleteItem(item.id)}>Delete</Button>
                       </div>
                     </td>
                   </tr>
