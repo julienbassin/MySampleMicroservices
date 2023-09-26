@@ -9,6 +9,7 @@ using Play.Common.MongoDb;
 using Play.Common.MassTransit;
 using Play.Common.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Play.Common.Identity;
 
 namespace Play.Catalog.Service
 {
@@ -33,14 +34,8 @@ namespace Play.Catalog.Service
 
             services.AddMongo()
                     .AddMongoRepository<Item>("items")
-                    .AddMassTransitWithRabbitMq();
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(options =>
-                    {
-                        options.Authority = "https://localhost:5003";
-                        options.Audience = serviceSettings.ServiceName;
-                    });
+                    .AddMassTransitWithRabbitMq()
+                    .AddJwtBearerAuthentication();
 
             services.AddControllers(options =>
             {

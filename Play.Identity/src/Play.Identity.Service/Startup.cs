@@ -1,21 +1,17 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using IdentityModel;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Play.Common.Settings;
 using Play.Identity.Service.Entities;
+using Play.Identity.Service.HostedServices;
 using Play.Identity.Service.Settings;
 
 namespace Play.Identity.Service
@@ -38,7 +34,8 @@ namespace Play.Identity.Service
             var mongoDbSettings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
             var identityServerSettings = Configuration.GetSection(nameof(IdentityServerSettings)).Get<IdentityServerSettings>();
 
-            services.AddDefaultIdentity<ApplicationUser>()
+            services.Configure<IdentitySettings>(Configuration.GetSection(nameof(IdentitySettings)))
+                    .AddDefaultIdentity<ApplicationUser>()
                     .AddRoles<ApplicationRole>()
                     .AddMongoDbStores<ApplicationUser, ApplicationRole, Guid>
                     (
@@ -60,9 +57,17 @@ namespace Play.Identity.Service
                 .AddInMemoryIdentityResources(identityServerSettings.IdentityResources)
                 .AddDeveloperSigningCredential();
 
-            //services.AddAuthentication();
+            services.AddLocalApiAuthentication();
+            services.AddAuthorization(o =>
+            {
+                o.AddPolicy("catalog.readaccess", p => p.RequireClaim(JwtClaimTypes.Scope, "catalog.readaccess"));
+                o.AddPolicy("catalog.writeaccess", p => p.RequireClaim(JwtClaimTypes.Scope, "catalog.writeaccess"));
+                o.AddPolicy("catalog.fullaccess", p => p.RequireClaim(JwtClaimTypes.Scope, "catalog.fullaccess"));
+                o.AddPolicy("isadmin", p => p.RequireClaim(JwtClaimTypes.Role, "Admin"));
+            });
 
             services.AddControllers();
+            services.AddHostedService<IdentitySeedHostedService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Play.Identity.Service", Version = "v1" });
