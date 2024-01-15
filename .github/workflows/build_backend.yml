@@ -5,24 +5,38 @@ name: Build Backend .NET
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "develop", "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "**" ]
 
+env:
+  buildConfiguration: Release
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+    - uses: actions/checkout@v2
+    - name: Install .NET Core SDK
+      uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+        dotnet-version: 7.x
+    - name: Restore Backend services
+      run: |
+        dotnet restore ${{ github.workspace }}/Play.Identity/src/Play.Identity.Service/Play.Identity.Service.csproj 
+        dotnet restore ${{ github.workspace }}/Play.Inventory/src/Play.Inventory.Service/Play.Inventory.Service.csproj 
+        dotnet restore ${{ github.workspace }}/Play.Catalog/src/Play.Catalog.Service/Play.Catalog.Service.csproj
+    - name: Build Backend services
+      run: |
+        dotnet build ${{ github.workspace }}/Play.Identity/src/Play.Identity.Service/Play.Identity.Service.csproj --configuration ${{ env.buildConfiguration }} 
+        dotnet build ${{ github.workspace }}/Play.Inventory/src/Play.Inventory.Service/Play.Inventory.Service.csproj --configuration ${{ env.buildConfiguration }} 
+        dotnet build ${{ github.workspace }}/Play.Catalog/src/Play.Catalog.Service/Play.Catalog.Service.csproj --configuration ${{ env.buildConfiguration }}
+    - name: Create Backend package
+      run: |
+        dotnet publish ${{ github.workspace }}/Play.Identity/src/Play.Identity.Service/Play.Identity.Service.csproj --configuration ${{ env.BuildConfiguration }} --output ${{ github.workspace }}/publish 
+        dotnet publish ${{ github.workspace }}/Play.Inventory/src/Play.Inventory.Service/Play.Inventory.Service.csproj --configuration ${{ env.BuildConfiguration }} --output ${{ github.workspace }}/publish 
+        dotnet publish ${{ github.workspace }}/Play.Catalog/src/Play.Catalog.Service/Play.Catalog.Service.csproj --configuration ${{ env.BuildConfiguration }} --output ${{ github.workspace }}/publish
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        path: ${{ github.workspace }}/publish
+        name: mySampleMicroservices

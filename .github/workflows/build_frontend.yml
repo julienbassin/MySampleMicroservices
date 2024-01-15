@@ -5,9 +5,9 @@ name: Build Frontend Node
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "develop", "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "**" ]
 
 jobs:
   build:
@@ -17,15 +17,24 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x]
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        cache-dependency-path: './Play.Frontend/package-lock.json' 
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+      - uses: actions/checkout@v2
+      - name: Install Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install & Build Front
+        run: |
+          npm install
+          npm run build
+      - name: Copy project files
+        run: Copy '${{ github.workspace }}/Play.Frontend/build//${{ github.workspace }}/Play.Frontend/build/**/*' '${{ github.workspace }}/publish'
+      - name: Archive files
+        uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ${{ github.workspace }}/publish/${{ github.run_id }}-WebApp.zip ${{ github.workspace }}/publish
+      - name: Publish npm artifact
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ github.workspace }}/publish/${{ github.run_id }}-WebApp.zip
+          name: ${{ github.run_id }}-FrontWebApp                    
