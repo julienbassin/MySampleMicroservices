@@ -9,5 +9,4 @@ namespace Play.Identity.Service.Entities
     {
         public decimal Gil { get; set; }
     }
-
 }

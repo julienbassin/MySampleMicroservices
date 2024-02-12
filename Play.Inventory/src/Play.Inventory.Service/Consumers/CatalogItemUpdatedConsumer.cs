@@ -1,7 +1,5 @@
-using System;
 using System.Threading.Tasks;
 using MassTransit;
-using Newtonsoft.Json;
 using Play.Catalog.Contracts;
 using Play.Common;
 using Play.Inventory.Service.Entities;
@@ -38,9 +36,9 @@ namespace Play.Inventory.Service.Consumers
             {
                 item.Name = message.Name;
                 item.Description = message.Description;
+
                 await repository.UpdateAsync(item);
             }
-
         }
     }
 }

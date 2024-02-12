@@ -1,105 +1,102 @@
 import React, { Component } from 'react';
-import { Col, Container, Row, Table, Button, Form } from 'react-bootstrap';
+import { Col, Container, Row, Table, Button } from 'react-bootstrap';
+import authService from './api-authorization/AuthorizeService'
 
-export class Inventory extends Component
-{
+export class Inventory extends Component {
   static displayName = Inventory.name;
 
-  constructor(props)
-  {
+  constructor(props) {
     super(props);
-    this.state = { userId: '', items: [], renderItems: false, loading: true, loadedSuccess: false };
+    this.state = { items: [], loading: true, loadedSuccess: false };
   }
 
-  onChange = e =>
-  {
-    this.setState({ [e.target.name]: e.target.value })
+  componentDidMount() {
+    this.populateItems();
   }
 
-  async populateItems()
-  {
-    if (this.state.userId === '')
-    {
-      return;
+  async populateItems() {
+
+    let userId = '';
+
+    if (this.cameFromUsersPage()) {
+      userId = this.props.location.user.id;
+    }
+    else {
+      const user = await authService.getUser();
+      userId = user.sub;
     }
 
-    this.setState({ items: [], renderItems: true, loading: true, loadedSuccess: false })
-    fetch(`${window.INVENTORY_ITEMS_API_URL}?userId=${this.state.userId}`)
+    const token = await authService.getAccessToken();
+    fetch(`${window.INVENTORY_ITEMS_API_URL}?userId=${userId}`, {
+      headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+    })
       .then(response => response.json())
       .then(returnedItems => this.setState({ items: returnedItems, loading: false, loadedSuccess: true }))
-      .catch(err =>
-      {
+      .catch(err => {
         console.log(err);
         this.setState({ items: [], loading: false, loadedSuccess: false })
       });
   }
 
-  renderInputs()
-  {
-    return <Form inline >
-      <Form.Label htmlFor="userId" srOnly>User Id:</Form.Label>
-      <Form.Control
-        className="mb-2 mr-sm-2"
-        style={{ minWidth: "350px" }}
-        type="text"
-        name="userId"
-        id="userId"
-        placeholder="Enter a user id"
-        onChange={this.onChange}
-        value={this.state.userId} />
-      <Button className="mb-2" variant="primary" onClick={() => this.populateItems()}>Get Inventory</Button>
-    </Form>;
+  renderItemsTable(items) {
+    return <Container style={{ paddingTop: "10px", paddingLeft: "0px" }}>
+      <Row>
+        <Col>
+          <Table striped>
+            <thead className="thead-dark">
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {!items || items.length <= 0 ?
+                <tr>
+                  <td colSpan="6" align="center"><b>No Items yet</b></td>
+                </tr>
+                : items.map(item => (
+                  <tr key={item.catalogItemId}>
+                    <td>
+                      {item.name}
+                    </td>
+                    <td>
+                      {item.description}
+                    </td>
+                    <td>
+                      {item.quantity}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </Table>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Button color="primary" hidden={!this.cameFromUsersPage()} onClick={() => this.props.history.goBack()}>Back to Users</Button>
+        </Col>
+      </Row>
+    </Container>;
   }
 
-  renderItemsTable()
-  {
-    return this.state.renderItems === false ? ''
-      : this.state.loading ? <p><em>Loading...</em></p>
-        : this.state.loadedSuccess === false ? <p>Could not load items</p>
-          : <Container style={{ paddingTop: "10px", paddingLeft: "0px" }}>
-            <Row>
-              <Col>
-                <Table striped>
-                  <thead className="thead-dark">
-                    <tr>
-                      <th>Name</th>
-                      <th>Description</th>
-                      <th>Quantity</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {!this.state.items || this.state.items.length <= 0 ?
-                      <tr>
-                        <td colSpan="6" align="center"><b>No Items yet</b></td>
-                      </tr>
-                      : this.state.items.map(item => (
-                        <tr key={item.catalogItemId}>
-                          <td>
-                            {item.name}
-                          </td>
-                          <td>
-                            {item.description}
-                          </td>
-                          <td>
-                            {item.quantity}
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </Table>
-              </Col>
-            </Row>
-          </Container>;
-  }
+  render() {
+    let contents = this.state.loading
+      ? <p><em>Loading...</em></p>
+      : this.state.loadedSuccess
+        ? this.renderItemsTable(this.state.items)
+        : <p>Could not load items</p>;
 
-  render()
-  {
     return (
       <div>
-        <h1 id="tabelLabel" >Inventory</h1>
-        {this.renderInputs()}
-        {this.renderItemsTable()}
+        <h1 id="tabelLabel" >{this.cameFromUsersPage() ? this.props.location.user.username : 'My'} Inventory</h1>
+        {contents}
       </div>
     );
+  }
+
+  cameFromUsersPage() {
+    var val = this.props.location.user != null;
+    return val;
   }
 }

@@ -2,17 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <UserSecretsId>7550d83e-8cd4-4a5f-8e77-ea6df6c2233d</UserSecretsId>
+    <UserSecretsId>d3211b89-44d5-46cf-84d5-13172985dfca</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AspNetCore.Identity.MongoDbCore" Version="3.1.2" />
-    <PackageReference Include="Duende.IdentityServer" Version="6.3.3" />
-    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="6.3.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.Ui" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Visualstudio.Web.Codegeneration.Design" Version="7.0.0" />
+    <PackageReference Include="AspNetCore.Identity.MongoDbCore" Version="3.1.1" />
+    <PackageReference Include="IdentityServer4" Version="4.1.2" />
+    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
     <PackageReference Include="Play.Common" Version="1.0.2" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
 </Project>

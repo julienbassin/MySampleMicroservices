@@ -2,77 +2,69 @@ import React, { Component } from 'react';
 import { Col, Container, Row, Table, Button } from 'react-bootstrap';
 import ItemModal from './form/ItemModal';
 import GrantItemModal from './form/GrantItemModal';
+import authService from './api-authorization/AuthorizeService'
 
-export class Catalog extends Component
-{
+export class Catalog extends Component {
   static displayName = Catalog.name;
 
-  constructor(props)
-  {
+  constructor(props) {
     super(props);
     this.state = { items: [], loading: true, loadedSuccess: false };
   }
 
-  componentDidMount()
-  {
+  componentDidMount() {
     this.populateItems();
   }
 
-  async populateItems()
-  {
-    fetch(`${window.CATALOG_ITEMS_API_URL}`, { mode: 'cors' })
-      .then(response =>
-      {
-        return response.json();
+  async populateItems() {
+    const token = await authService.getAccessToken();
+    fetch(`${window.CATALOG_ITEMS_API_URL}`, {
+      headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+    })
+      .then(response => { 
+        return response.json(); 
       })
       .then(returnedItems => this.setState({ items: returnedItems, loading: false, loadedSuccess: true }))
-      .catch(err =>
-      {
+      .catch(err => {
         console.log(err);
         this.setState({ items: [], loading: false, loadedSuccess: false })
       });
   }
 
-  addItemToState = item =>
-  {
+  addItemToState = item => {
     this.setState(previous => ({
       items: [...previous.items, item]
     }));
   }
-  updateState = (id) =>
-  {
+  updateState = (id) => {
     this.populateItems();
   }
-  deleteItemFromState = id =>
-  {
+  deleteItemFromState = id => {
     const updated = this.state.items.filter(item => item.id !== id);
     this.setState({ items: updated })
   }
-  async deleteItem(id)
-  {
+  async deleteItem(id) {
     let confirmDeletion = window.confirm('Do you really wish to delete it?');
-    if (confirmDeletion)
-    {
+    if (confirmDeletion) {
+      const token = await authService.getAccessToken();
       fetch(`${window.CATALOG_ITEMS_API_URL}/${id}`, {
         method: 'delete',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       })
-        .then(res =>
-        {
+        .then(res => {
           this.deleteItemFromState(id);
         })
-        .catch(err =>
-        {
+        .catch(err => {          
           console.log(err);
-          window.alert("Could not delete the item.");
+          window.alert("Could not delete the item.");          
         });
     }
   }
 
-  renderItemsTable(items)
-  {
+  renderItemsTable(items) {
     return <Container style={{ paddingTop: "10px", paddingLeft: "0px" }}>
       <Row>
         <Col>
@@ -107,11 +99,11 @@ export class Catalog extends Component
                           isNew={false}
                           item={item}
                           updateItemIntoState={this.updateState} />
-                        &nbsp;&nbsp;&nbsp;
-                        <GrantItemModal
+                    &nbsp;&nbsp;&nbsp;
+                    <GrantItemModal
                           item={item} />
-                        &nbsp;&nbsp;&nbsp;
-                        <Button variant="danger" onClick={() => this.deleteItem(item.id)}>Delete</Button>
+                    &nbsp;&nbsp;&nbsp;                    
+                    <Button variant="danger" onClick={() => this.deleteItem(item.id)}>Delete</Button>
                       </div>
                     </td>
                   </tr>
@@ -128,8 +120,7 @@ export class Catalog extends Component
     </Container>;
   }
 
-  render()
-  {
+  render() {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
       : this.state.loadedSuccess

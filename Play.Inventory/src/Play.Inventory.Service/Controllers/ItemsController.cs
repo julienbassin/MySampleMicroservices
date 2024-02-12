@@ -1,43 +1,57 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Play.Common;
 using Play.Inventory.Service.Clients;
+using Play.Inventory.Service.Dtos;
 using Play.Inventory.Service.Entities;
-using static Play.Inventory.Service.Dtos.InventoryDto;
 
 namespace Play.Inventory.Service.Controllers
 {
     [ApiController]
     [Route("items")]
-    [Authorize]
     public class ItemsController : ControllerBase
     {
-        public readonly IRepository<InventoryItem> itemsRepository;
-        public readonly IRepository<CatalogItem> catalogRepository;
+        private const string AdminRole = "Admin";
 
-        public ItemsController(IRepository<InventoryItem> itemsRepository,
-                                IRepository<CatalogItem> catalogRepository)
+        private readonly IRepository<InventoryItem> inventoryItemsRepository;
+        private readonly IRepository<CatalogItem> catalogItemsRepository;
+
+        public ItemsController(IRepository<InventoryItem> inventoryItemsRepository, IRepository<CatalogItem> catalogItemsRepository)
         {
-            this.itemsRepository = itemsRepository;
-            this.catalogRepository = catalogRepository;
+            this.inventoryItemsRepository = inventoryItemsRepository;
+            this.catalogItemsRepository = catalogItemsRepository;
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<InventoryItemDto>>> GetAsync(Guid userId)
         {
             if (userId == Guid.Empty)
+            {
                 return BadRequest();
+            }
 
-            var inventoryitemsEntities = await itemsRepository.GetAllAsync(item => item.UserId == userId);
-            var itemIds = inventoryitemsEntities.Select(item => item.CatalogItemId);
-            var catalogItemEntities = await catalogRepository.GetAllAsync(item => itemIds.Contains(item.Id));
+            var currentUserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
+            if (Guid.Parse(currentUserId) != userId)
+            {
+                if (!User.IsInRole(AdminRole))
+                {
+                    return Forbid();
+                }
+            }
 
-            var inventoryItemDtos = inventoryitemsEntities.Select(inventoryItem =>
+            var inventoryItemEntities = await inventoryItemsRepository.GetAllAsync(item => item.UserId == userId);
+            var itemIds = inventoryItemEntities.Select(item => item.CatalogItemId);
+            var catalogItemEntities = await catalogItemsRepository.GetAllAsync(item => itemIds.Contains(item.Id));
+
+            var inventoryItemDtos = inventoryItemEntities.Select(inventoryItem =>
             {
                 var catalogItem = catalogItemEntities.Single(catalogItem => catalogItem.Id == inventoryItem.CatalogItemId);
                 return inventoryItem.AsDto(catalogItem.Name, catalogItem.Description);
@@ -47,11 +61,11 @@ namespace Play.Inventory.Service.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateAsync(GrantItemsDto grantItemsDto)
+        [Authorize(Roles = AdminRole)]
+        public async Task<ActionResult> PostAsync(GrantItemsDto grantItemsDto)
         {
-
-            var inventoryItem = await itemsRepository.GetAsync(item => item.UserId == grantItemsDto.UserId
-                                                            && item.CatalogItemId == grantItemsDto.CatalogItemId);
+            var inventoryItem = await inventoryItemsRepository.GetAsync(
+                item => item.UserId == grantItemsDto.UserId && item.CatalogItemId == grantItemsDto.CatalogItemId);
 
             if (inventoryItem == null)
             {
@@ -63,16 +77,15 @@ namespace Play.Inventory.Service.Controllers
                     AcquiredDate = DateTimeOffset.UtcNow
                 };
 
-                await itemsRepository.CreateAsync(inventoryItem);
+                await inventoryItemsRepository.CreateAsync(inventoryItem);
             }
             else
             {
                 inventoryItem.Quantity += grantItemsDto.Quantity;
-                await itemsRepository.UpdateAsync(inventoryItem);
+                await inventoryItemsRepository.UpdateAsync(inventoryItem);
             }
 
             return Ok();
         }
     }
-
 }

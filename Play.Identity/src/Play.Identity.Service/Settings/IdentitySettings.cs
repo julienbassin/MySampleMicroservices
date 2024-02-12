@@ -1,7 +1,9 @@
-namespace Play.Identity.Service.Settings;
-
-public class IdentitySettings
+namespace Play.Identity.Service.Settings
 {
-    public string AdminUserEmail { get; init; }
-    public string AdminUserPassword { get; init; }
+    public class IdentitySettings
+    {
+        public string AdminUserEmail { get; init; }
+        public string AdminUserPassword { get; init; }
+        public decimal StartingGil { get; init; }
+    }
 }

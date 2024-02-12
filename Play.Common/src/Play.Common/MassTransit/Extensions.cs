@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using GreenPipes;
 using MassTransit;
@@ -22,8 +21,8 @@ namespace Play.Common.MassTransit
                 {
                     var configuration = context.GetService<IConfiguration>();
                     var serviceSettings = configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
-                    var rabbitMqSettings = configuration.GetSection(nameof(RabbitMqSettings)).Get<RabbitMqSettings>();
-                    configurator.Host(rabbitMqSettings.Hostname);
+                    var rabbitMQSettings = configuration.GetSection(nameof(RabbitMQSettings)).Get<RabbitMQSettings>();
+                    configurator.Host(rabbitMQSettings.Host);
                     configurator.ConfigureEndpoints(context, new KebabCaseEndpointNameFormatter(serviceSettings.ServiceName, false));
                     configurator.UseMessageRetry(retryConfigurator =>
                     {
@@ -37,5 +36,4 @@ namespace Play.Common.MassTransit
             return services;
         }
     }
-
 }

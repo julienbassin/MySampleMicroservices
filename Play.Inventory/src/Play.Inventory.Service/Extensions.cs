@@ -1,6 +1,5 @@
-
+using Play.Inventory.Service.Dtos;
 using Play.Inventory.Service.Entities;
-using static Play.Inventory.Service.Dtos.InventoryDto;
 
 namespace Play.Inventory.Service
 {

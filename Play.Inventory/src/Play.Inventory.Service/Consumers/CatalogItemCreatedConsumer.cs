@@ -1,7 +1,5 @@
-using System;
 using System.Threading.Tasks;
 using MassTransit;
-using Newtonsoft.Json;
 using Play.Catalog.Contracts;
 using Play.Common;
 using Play.Inventory.Service.Entities;
