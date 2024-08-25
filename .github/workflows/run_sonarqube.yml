@@ -1,0 +1,67 @@
+name: Security Pipeline with SonarQube
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  SONARQUBE_SERVER_URL: ''   
+  SONAR_PROJECT_FRONT_NAME: 'Play.Frontend'   
+  SONAR_PROJECT_BACK_NAME: /Play.Catalog/src/Play.Catalog.Service/Play.Catalog.Service.csproj      
+  NODE_VERSION: '14'  
+  DOTNET_VERSION: '7'              
+  SONAR_PROJECT_KEY: ''              
+
+jobs:
+  sonarqube-scan-dotnet:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '7' 
+
+    - name: Build and Test .NET Core
+      run: |
+        dotnet restore
+        dotnet build
+        dotnet test
+
+    - name: SonarQube Analysis for .NET Core
+      uses: sonarsource/sonarqube-scan-action@v3
+      with:
+        sonar-url: ${{ env.SONARQUBE_SERVER_URL }}
+        sonar-login: ${{ secrets.SONARQUBE_TOKEN }}
+        sonar-project-key: ${{ env.SONAR_PROJECT_KEY }}
+        sonar-project-name: ${{ env.SONAR_PROJECT_BACK_NAME }} 
+        sonar-project-version: ${{ github.sha }}
+
+  sonarqube-scan-js:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'  
+
+    - name: Install Dependencies for JavaScript
+      run: npm install
+
+    - name: Run Tests for JavaScript
+      run: npm test
+
+    - name: SonarQube Analysis for JavaScript
+      uses: sonarsource/sonarqube-scan-action@v3
+      with:
+        sonar-url: ${{ env.SONARQUBE_SERVER_URL }}
+        sonar-login: ${{ secrets.SONARQUBE_TOKEN }}
+        sonar-project-key: ${{ env.SONAR_PROJECT_KEY }}
+        sonar-project-name: ${{ env.SONAR_PROJECT_FRONT_NAME }}
+        sonar-project-version: ${{ github.sha }}
