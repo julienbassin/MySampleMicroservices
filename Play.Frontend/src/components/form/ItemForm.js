@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button, Form, Alert } from 'react-bootstrap';
+import authService from '../api-authorization/AuthorizeService'
 
 export default class ItemForm extends React.Component
 {
@@ -31,7 +32,7 @@ export default class ItemForm extends React.Component
 
         const form = e.currentTarget;
         if (form.checkValidity() === false)
-        {
+        {            
             e.stopPropagation();
         }
         else
@@ -44,10 +45,12 @@ export default class ItemForm extends React.Component
 
     async createItem()
     {
+        const token = await authService.getAccessToken();
         fetch(`${window.CATALOG_ITEMS_API_URL}`, {
             method: 'post',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 name: this.state.name,
@@ -83,7 +86,7 @@ export default class ItemForm extends React.Component
 
         const form = e.currentTarget;
         if (form.checkValidity() === false)
-        {
+        {            
             e.stopPropagation();
         }
         else
@@ -96,10 +99,12 @@ export default class ItemForm extends React.Component
 
     async updateItem()
     {
+        const token = await authService.getAccessToken();
         fetch(`${window.CATALOG_ITEMS_API_URL}/${this.state.id}`, {
             method: 'put',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 id: this.state.id,

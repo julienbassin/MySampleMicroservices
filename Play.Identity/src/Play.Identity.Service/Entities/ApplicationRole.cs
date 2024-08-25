@@ -6,7 +6,6 @@ namespace Play.Identity.Service.Entities
 {
     [CollectionName("Roles")]
     public class ApplicationRole : MongoIdentityRole<Guid>
-    {
-
+    {        
     }
 }

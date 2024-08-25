@@ -16,12 +16,15 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Play.Common.Settings;
 using Play.Identity.Service.Entities;
+using Play.Identity.Service.HostedServices;
 using Play.Identity.Service.Settings;
 
 namespace Play.Identity.Service
 {
     public class Startup
     {
+        private const string AllowedOriginSetting = "AllowedOrigin";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -33,26 +36,25 @@ namespace Play.Identity.Service
         public void ConfigureServices(IServiceCollection services)
         {
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
-
             var serviceSettings = Configuration.GetSection(nameof(ServiceSettings)).Get<ServiceSettings>();
             var mongoDbSettings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
             var identityServerSettings = Configuration.GetSection(nameof(IdentityServerSettings)).Get<IdentityServerSettings>();
 
-            services.AddDefaultIdentity<ApplicationUser>()
-                    .AddRoles<ApplicationRole>()
-                    .AddMongoDbStores<ApplicationUser, ApplicationRole, Guid>
-                    (
-                        mongoDbSettings.ConnectionString,
-                        serviceSettings.ServiceName
-                    );
+            services.Configure<IdentitySettings>(Configuration.GetSection(nameof(IdentitySettings)))
+                .AddDefaultIdentity<ApplicationUser>()
+                .AddRoles<ApplicationRole>()
+                .AddMongoDbStores<ApplicationUser, ApplicationRole, Guid>
+                (
+                    mongoDbSettings.ConnectionString,
+                    serviceSettings.ServiceName
+                );
 
-            services.AddIdentityServer(
-                options =>
-                {
-                    options.Events.RaiseSuccessEvents = true;
-                    options.Events.RaiseFailureEvents = true;
-                    options.Events.RaiseErrorEvents = true;
-                })
+            services.AddIdentityServer(options =>
+            {
+                options.Events.RaiseSuccessEvents = true;
+                options.Events.RaiseFailureEvents = true;
+                options.Events.RaiseErrorEvents = true;
+            })
                 .AddAspNetIdentity<ApplicationUser>()
                 .AddInMemoryApiScopes(identityServerSettings.ApiScopes)
                 .AddInMemoryApiResources(identityServerSettings.ApiResources)
@@ -60,9 +62,10 @@ namespace Play.Identity.Service
                 .AddInMemoryIdentityResources(identityServerSettings.IdentityResources)
                 .AddDeveloperSigningCredential();
 
-            //services.AddAuthentication();
+            services.AddLocalApiAuthentication();
 
             services.AddControllers();
+            services.AddHostedService<IdentitySeedHostedService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Play.Identity.Service", Version = "v1" });
@@ -77,16 +80,22 @@ namespace Play.Identity.Service
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Play.Identity.Service v1"));
+
+                app.UseCors(builder =>
+                {
+                    builder.WithOrigins(Configuration[AllowedOriginSetting])
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
             }
 
             app.UseHttpsRedirection();
 
-            app.UseRouting();
-
             app.UseStaticFiles();
 
-            app.UseIdentityServer();
+            app.UseRouting();
 
+            app.UseIdentityServer();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

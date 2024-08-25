@@ -1,48 +1,25 @@
-version: "3.8"
-services:
-  # Play.Catalog.Api:
-  #   container_name: Play.Catalog.Service
-  #   environment:
-  #     [
-  #       — ASPNETCORE_ENVIRONMENT=Development,
-  #       — "MongoDbSettings:ConnectionString=mongodb://Catalog:27017"
-  #     ]
 
-  # backend:
-  #   build:
-  #     context: Play.Catalog.Api
-  #   restart: always
-  #   depends_on:
-  #     mongo:
-  #       condition: service_healthy
-  #   environment:
-  #     - ASPNETCORE_URLS=http://+:5001
+version: "3.8"
+
+services: 
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - 27017:27017
+    volumes: 
+      - mongodbdata:/data/db
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:management
     container_name: rabbitmq
-    ports:
+    ports: 
       - 5672:5672
       - 15672:15672
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
     hostname: rabbitmq
 
-  mongo:
-    image: mongo
-    container_name: mongo
-    ports:
-      - 27017:27017
-    # command: 'docker run -d --rm --name mongo -p 27017:27017 -v mongodbdata:/data/db'
-    restart: always
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
-    volumes:
-      - mongodbdata:/data/db
-volumes:
+volumes: 
   mongodbdata:
   rabbitmqdata:

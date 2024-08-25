@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Play.Catalog.Contracts", "Play.Catalog.Contracts\Play.Catalog.Contracts.csproj", "{44E79DBC-03FE-465F-A5B6-A3EAF791C525}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Play.Catalog.Service", "Play.Catalog.Service\Play.Catalog.Service.csproj", "{BDCF89D8-EB97-423D-BE4A-1E3559F77C17}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{44E79DBC-03FE-465F-A5B6-A3EAF791C525}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44E79DBC-03FE-465F-A5B6-A3EAF791C525}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44E79DBC-03FE-465F-A5B6-A3EAF791C525}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44E79DBC-03FE-465F-A5B6-A3EAF791C525}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDCF89D8-EB97-423D-BE4A-1E3559F77C17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDCF89D8-EB97-423D-BE4A-1E3559F77C17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDCF89D8-EB97-423D-BE4A-1E3559F77C17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDCF89D8-EB97-423D-BE4A-1E3559F77C17}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F0FE058F-8875-456D-A29A-CDE3E8EFE6DD}
+	EndGlobalSection
+EndGlobal

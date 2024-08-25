@@ -1,51 +1,49 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Play.Catalog.Contracts;
 using Play.Catalog.Service.Dtos;
 using Play.Catalog.Service.Entities;
 using Play.Common;
-using MassTransit;
-using Play.Catalog.Contracts;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Play.Catalog.Service.Controllers
 {
     [ApiController]
     [Route("items")]
-    [Authorize]
     public class ItemsController : ControllerBase
     {
-        private readonly IRepository<Item> itemsRepository;
+        private const string AdminRole = "Admin";
 
+        private readonly IRepository<Item> itemsRepository;
         private readonly IPublishEndpoint publishEndpoint;
-        private readonly ILogger<ItemsController> _logger;
-        public ItemsController(ILogger<ItemsController> logger,
-                                IRepository<Item> itemsRepository,
-                                IPublishEndpoint publishEndpoint)
+
+        public ItemsController(IRepository<Item> itemsRepository, IPublishEndpoint publishEndpoint)
         {
-            _logger = logger;
             this.itemsRepository = itemsRepository;
             this.publishEndpoint = publishEndpoint;
         }
 
-        [HttpGet()]
-        public async Task<ActionResult<IEnumerable<ItemDto>>> GetItems()
+        [HttpGet]
+        [Authorize(Policies.Read)]
+        public async Task<ActionResult<IEnumerable<ItemDto>>> GetAsync()
         {
-            var item = (await itemsRepository.GetAllAsync())
+            var items = (await itemsRepository.GetAllAsync())
                         .Select(item => item.AsDto());
 
-            return Ok(item);
+            return Ok(items);
         }
 
-        [HttpGet("{Id}")]
-        public async Task<ActionResult<ItemDto>> GetByIdAsync(Guid Id)
+        // GET /items/{id}
+        [HttpGet("{id}")]
+        [Authorize(Policies.Read)]
+        public async Task<ActionResult<ItemDto>> GetByIdAsync(Guid id)
         {
-            var item = await itemsRepository.GetAsync(Id);
+            var item = await itemsRepository.GetAsync(id);
+
             if (item == null)
             {
                 return NotFound();
@@ -54,60 +52,66 @@ namespace Play.Catalog.Service.Controllers
             return item.AsDto();
         }
 
+        // POST /items
         [HttpPost]
-        public async Task<ActionResult<ItemDto>> CreateDto(CreateItemDto itemDto)
+        [Authorize(Policies.Write)]
+        public async Task<ActionResult<ItemDto>> PostAsync(CreateItemDto createItemDto)
         {
-            var currentItem = new Item
+            var item = new Item
             {
-                Id = Guid.NewGuid(),
-                Name = itemDto.Name,
-                Description = itemDto.Description,
-                Price = itemDto.Price,
+                Name = createItemDto.Name,
+                Description = createItemDto.Description,
+                Price = createItemDto.Price,
                 CreatedDate = DateTimeOffset.UtcNow
             };
 
+            await itemsRepository.CreateAsync(item);
 
-            await itemsRepository.CreateAsync(currentItem);
+            await publishEndpoint.Publish(new CatalogItemCreated(item.Id, item.Name, item.Description));
 
-            await publishEndpoint.Publish(new CatalogItemCreated(currentItem.Id, currentItem.Name, currentItem.Description));
-
-            return CreatedAtAction(nameof(GetByIdAsync), new { Id = currentItem.Id }, currentItem);
+            return CreatedAtAction(nameof(GetByIdAsync), new { id = item.Id }, item);
         }
 
-        [HttpPut("{Id}")]
-        public async Task<IActionResult> PutAsync(Guid Id, UpdateItemDto itemDto)
+        // PUT /items/{id}
+        [HttpPut("{id}")]
+        [Authorize(Policies.Write)]
+        public async Task<IActionResult> PutAsync(Guid id, UpdateItemDto updateItemDto)
         {
-            var currentItem = await itemsRepository.GetAsync(Id);
-            if (currentItem == null)
-                return NotFound();
+            var existingItem = await itemsRepository.GetAsync(id);
 
-            currentItem.Name = itemDto.Name;
-            currentItem.Description = itemDto.Description;
-            currentItem.Price = itemDto.Price;
-
-            await itemsRepository.UpdateAsync(currentItem);
-
-            await publishEndpoint.Publish(new CatalogItemUpdated(currentItem.Id, currentItem.Name, currentItem.Description));
-
-            return new NoContentResult();
-        }
-
-        [HttpDelete("{Id}")]
-        public async Task<IActionResult> DeleteAsync(Guid Id)
-        {
-            var currentItem = await itemsRepository.GetAsync(Id);
-
-            if (currentItem == null)
+            if (existingItem == null)
             {
                 return NotFound();
             }
 
+            existingItem.Name = updateItemDto.Name;
+            existingItem.Description = updateItemDto.Description;
+            existingItem.Price = updateItemDto.Price;
 
-            await itemsRepository.DeleteAsync(currentItem.Id);
+            await itemsRepository.UpdateAsync(existingItem);
 
-            await publishEndpoint.Publish(new CatalogItemDeleted(currentItem.Id));
+            await publishEndpoint.Publish(new CatalogItemUpdated(existingItem.Id, existingItem.Name, existingItem.Description));
 
-            return new NoContentResult();
+            return NoContent();
+        }
+
+        // DELETE /items/{id}
+        [HttpDelete("{id}")]
+        [Authorize(Policies.Write)]
+        public async Task<IActionResult> DeleteAsync(Guid id)
+        {
+            var item = await itemsRepository.GetAsync(id);
+
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            await itemsRepository.RemoveAsync(item.Id);
+
+            await publishEndpoint.Publish(new CatalogItemDeleted(id));
+
+            return NoContent();
         }
     }
 }

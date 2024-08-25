@@ -1,12 +1,12 @@
 import React from 'react';
 import { Button, Form, Alert } from 'react-bootstrap';
-import { v4 as uuidv4 } from 'uuid';
+import authService from '../api-authorization/AuthorizeService'
 
 export default class GrantItemForm extends React.Component
 {
     state = {
         id: '',
-        userId: uuidv4(),
+        userId: '',
         quantity: 1,
         alertVisible: false,
         validated: false
@@ -44,10 +44,12 @@ export default class GrantItemForm extends React.Component
 
     async grantItem()
     {
+        const token = await authService.getAccessToken();
         fetch(`${window.INVENTORY_ITEMS_API_URL}`, {
             method: 'post',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 userId: this.state.userId,

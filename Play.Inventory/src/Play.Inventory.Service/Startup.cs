@@ -7,8 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Play.Common.MongoDb;
+using Play.Common.Identity;
 using Play.Common.MassTransit;
+using Play.Common.MongoDB;
 using Play.Inventory.Service.Clients;
 using Play.Inventory.Service.Entities;
 using Polly;
@@ -19,6 +20,7 @@ namespace Play.Inventory.Service
     public class Startup
     {
         private const string AllowedOriginSetting = "AllowedOrigin";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -29,13 +31,11 @@ namespace Play.Inventory.Service
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddMongo()
                     .AddMongoRepository<InventoryItem>("inventoryitems")
                     .AddMongoRepository<CatalogItem>("catalogitems")
-                    .AddMassTransitWithRabbitMq();
-
-
+                    .AddMassTransitWithRabbitMq()
+                    .AddJwtBearerAuthentication();
 
             AddCatalogClient(services);
 
@@ -58,15 +58,16 @@ namespace Play.Inventory.Service
                 app.UseCors(builder =>
                 {
                     builder.WithOrigins(Configuration[AllowedOriginSetting])
-                            .AllowAnyHeader()
-                            .AllowAnyMethod();
-                });
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });                 
             }
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -83,8 +84,8 @@ namespace Play.Inventory.Service
             {
                 client.BaseAddress = new Uri("https://localhost:5001");
             })
-            .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.Or<TimeoutRejectedException>().WaitAndRetryAsync(
-                2,
+            .AddTransientHttpErrorPolicy(builder => builder.Or<TimeoutRejectedException>().WaitAndRetryAsync(
+                5,
                 retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))
                                 + TimeSpan.FromMilliseconds(jitterer.Next(0, 1000)),
                 onRetry: (outcome, timespan, retryAttempt) =>
@@ -101,16 +102,16 @@ namespace Play.Inventory.Service
                 {
                     var serviceProvider = services.BuildServiceProvider();
                     serviceProvider.GetService<ILogger<CatalogClient>>()?
-                        .LogWarning($"Opening the circuit for {timespan.TotalSeconds} seconds ...");
+                        .LogWarning($"Opening the circuit for {timespan.TotalSeconds} seconds...");
                 },
                 onReset: () =>
                 {
                     var serviceProvider = services.BuildServiceProvider();
                     serviceProvider.GetService<ILogger<CatalogClient>>()?
-                        .LogWarning($"Closing the circuit ...");
+                        .LogWarning($"Closing the circuit...");
                 }
             ))
-            .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(15));
+            .AddPolicyHandler(Policy.TimeoutAsync<HttpResponseMessage>(1));
         }
     }
 }
