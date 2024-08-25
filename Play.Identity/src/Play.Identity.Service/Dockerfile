@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
 WORKDIR /src
 
-COPY Play.Catalog.Service.csproj ./
+COPY Play.Identity.Service.csproj ./
 RUN ["dotnet", "restore"]
 
 FROM base as builder
@@ -37,4 +37,4 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 COPY --from=publisher /build .
 
-CMD ["dotnet", "Play.Catalog.Service.dll"]
+CMD ["dotnet", "Play.Identity.Service.dll"]
