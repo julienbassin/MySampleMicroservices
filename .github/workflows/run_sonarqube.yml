@@ -1,0 +1,78 @@
+name: Security Pipeline with SonarQube
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  SONARQUBE_SERVER_URL: ''   
+  SONAR_PROJECT_FRONT_NAME: 'Play.Frontend'   
+  SONAR_PROJECT_BACK_NAME: /Play.Catalog/src/Play.Catalog.Service/Play.Catalog.Service.csproj      
+  NODE_VERSION: '18'  
+  DOTNET_VERSION: '7'              
+  SONAR_PROJECT_KEY: ''              
+
+jobs:
+  sonarqube-scan-dotnet:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '7' 
+
+    - name: Restore Backend services
+      run: |
+        dotnet restore ${{ github.workspace }}/Play.Identity/src/Play.Identity.Service/Play.Identity.Service.csproj 
+        dotnet restore ${{ github.workspace }}/Play.Inventory/src/Play.Inventory.Service/Play.Inventory.Service.csproj 
+        dotnet restore ${{ github.workspace }}/Play.Catalog/src/Play.Catalog.Service/Play.Catalog.Service.csproj
+    - name: Build Backend services
+      run: |
+        dotnet build ${{ github.workspace }}/Play.Identity/src/Play.Identity.Service/Play.Identity.Service.csproj --configuration ${{ env.buildConfiguration }} 
+        dotnet build ${{ github.workspace }}/Play.Inventory/src/Play.Inventory.Service/Play.Inventory.Service.csproj --configuration ${{ env.buildConfiguration }} 
+        dotnet build ${{ github.workspace }}/Play.Catalog/src/Play.Catalog.Service/Play.Catalog.Service.csproj --configuration ${{ env.buildConfiguration }}
+    
+    # - name: Test Backend services
+    #   run: |
+    #     dotnet test ${{ github.workspace }}/Play.Identity/src/Play.Identity.Service/Play.Identity.Service.csproj --configuration ${{ env.buildConfiguration }} 
+    #     dotnet test ${{ github.workspace }}/Play.Inventory/src/Play.Inventory.Service/Play.Inventory.Service.csproj --configuration ${{ env.buildConfiguration }} 
+    #     dotnet test ${{ github.workspace }}/Play.Catalog/src/Play.Catalog.Service/Play.Catalog.Service.csproj --configuration ${{ env.buildConfiguration }}
+
+    - name: SonarQube Analysis for .NET Core
+      uses: sonarsource/sonarqube-scan-action@v3
+      with:
+        sonar-url: ${{ env.SONARQUBE_SERVER_URL }}
+        sonar-login: ${{ secrets.SONARQUBE_TOKEN }}
+        sonar-project-key: ${{ env.SONAR_PROJECT_KEY }}
+        sonar-project-name: ${{ env.SONAR_PROJECT_BACK_NAME }} 
+        sonar-project-version: ${{ github.sha }}
+
+  sonarqube-scan-js:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'  
+
+    - name: Install Dependencies for JavaScript
+      run: npm install
+
+    - name: Run Tests for JavaScript
+      run: npm test
+
+    - name: SonarQube Analysis for JavaScript
+      uses: sonarsource/sonarqube-scan-action@v3
+      with:
+        sonar-url: ${{ env.SONARQUBE_SERVER_URL }}
+        sonar-login: ${{ secrets.SONARQUBE_TOKEN }}
+        sonar-project-key: ${{ env.SONAR_PROJECT_KEY }}
+        sonar-project-name: ${{ env.SONAR_PROJECT_FRONT_NAME }}
+        sonar-project-version: ${{ github.sha }}
