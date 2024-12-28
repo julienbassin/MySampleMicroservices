@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using System;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -39,7 +40,8 @@ namespace Play.Identity.Service.HostedServices
                 adminUser = new ApplicationUser
                 {
                     UserName = settings.AdminUserEmail,
-                    Email = settings.AdminUserEmail
+                    Email = settings.AdminUserEmail,
+                    SecurityStamp = Guid.NewGuid().ToString()
                 };
 
                 await userManager.CreateAsync(adminUser, settings.AdminUserPassword);
