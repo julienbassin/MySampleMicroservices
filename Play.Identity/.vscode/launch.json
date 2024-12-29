@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Play.Identity.Service/bin/Debug/net5.0/Play.Identity.Service.dll",
+            "program": "${workspaceFolder}/src/Play.Identity.Service/bin/Debug/net8.0/Play.Identity.Service.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/Play.Identity.Service",
             "stopAtEntry": false,
