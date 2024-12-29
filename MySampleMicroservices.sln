@@ -29,6 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{01CC083A-635
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Play.Inventory.Service", "Play.Inventory\src\Play.Inventory.Service\Play.Inventory.Service.csproj", "{D488B6B7-BFA8-427A-9B00-2B56CB89AC44}"
 EndProject
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 =======
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Play.Inventory.Contracts", "Play.Inventory\src\Play.Inventory.Contracts\Play.Inventory.Contracts.csproj", "{0C489553-51A3-4746-9F63-944FCA22CB5A}"
@@ -36,6 +37,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Play.Identity.Contracts", "Play.Identity\src\Play.Identity.Contracts\Play.Identity.Contracts.csproj", "{2AF0DA1F-EA42-46C6-BED5-969F288F947D}"
 EndProject
 >>>>>>> Stashed changes
+=======
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Play.Inventory.Contracts", "Play.Inventory\src\Play.Inventory.Contracts\Play.Inventory.Contracts.csproj", "{0C489553-51A3-4746-9F63-944FCA22CB5A}"
+EndProject
+>>>>>>> 5a3f1b2d043b2cdcdd4027a6a3c881bbf2d2c81b
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,17 +67,23 @@ Global
 		{D488B6B7-BFA8-427A-9B00-2B56CB89AC44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D488B6B7-BFA8-427A-9B00-2B56CB89AC44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D488B6B7-BFA8-427A-9B00-2B56CB89AC44}.Release|Any CPU.Build.0 = Release|Any CPU
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 =======
+=======
+>>>>>>> 5a3f1b2d043b2cdcdd4027a6a3c881bbf2d2c81b
 		{0C489553-51A3-4746-9F63-944FCA22CB5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0C489553-51A3-4746-9F63-944FCA22CB5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C489553-51A3-4746-9F63-944FCA22CB5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C489553-51A3-4746-9F63-944FCA22CB5A}.Release|Any CPU.Build.0 = Release|Any CPU
+<<<<<<< HEAD
 		{2AF0DA1F-EA42-46C6-BED5-969F288F947D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2AF0DA1F-EA42-46C6-BED5-969F288F947D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AF0DA1F-EA42-46C6-BED5-969F288F947D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AF0DA1F-EA42-46C6-BED5-969F288F947D}.Release|Any CPU.Build.0 = Release|Any CPU
 >>>>>>> Stashed changes
+=======
+>>>>>>> 5a3f1b2d043b2cdcdd4027a6a3c881bbf2d2c81b
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,11 +98,15 @@ Global
 		{A35555FF-128D-4B3C-9341-7993961B9960} = {4DD02FDD-7763-4497-B6E1-34443A8E0F8B}
 		{01CC083A-6359-4FA5-8AD5-922EEB1BB392} = {63B65219-723C-4E7B-8EFE-6F1BD204A6D9}
 		{D488B6B7-BFA8-427A-9B00-2B56CB89AC44} = {01CC083A-6359-4FA5-8AD5-922EEB1BB392}
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 =======
 		{0C489553-51A3-4746-9F63-944FCA22CB5A} = {01CC083A-6359-4FA5-8AD5-922EEB1BB392}
 		{2AF0DA1F-EA42-46C6-BED5-969F288F947D} = {4DD02FDD-7763-4497-B6E1-34443A8E0F8B}
 >>>>>>> Stashed changes
+=======
+		{0C489553-51A3-4746-9F63-944FCA22CB5A} = {01CC083A-6359-4FA5-8AD5-922EEB1BB392}
+>>>>>>> 5a3f1b2d043b2cdcdd4027a6a3c881bbf2d2c81b
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {67525DBC-62BE-4581-A5A6-5E20E3373E65}

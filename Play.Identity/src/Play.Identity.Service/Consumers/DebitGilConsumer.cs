@@ -22,7 +22,11 @@ namespace Play.Identity.Service.Consumers
             var user = await userManager.FindByIdAsync(message.userId.ToString());
             if (user == null) 
             {
+<<<<<<< HEAD
                 throw new UnknownUserException(message.userId);
+=======
+                throw new UnkwnownUserException(message.userId);
+>>>>>>> 5a3f1b2d043b2cdcdd4027a6a3c881bbf2d2c81b
             }
 
             user.Gil -= message.Gil;

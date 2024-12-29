@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <UserSecretsId>d3211b89-44d5-46cf-84d5-13172985dfca</UserSecretsId>
   </PropertyGroup>
 
@@ -9,12 +9,15 @@
     <PackageReference Include="AspNetCore.Identity.MongoDbCore" Version="3.1.1" />
     <PackageReference Include="IdentityServer4" Version="4.1.2" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
+<<<<<<< HEAD
 <<<<<<< Updated upstream
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.4" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
     <PackageReference Include="Play.Common" Version="1.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
 =======
+=======
+>>>>>>> 5a3f1b2d043b2cdcdd4027a6a3c881bbf2d2c81b
     <PackageReference Include="Play.Common" Version="1.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0" />
@@ -22,9 +25,13 @@
   </ItemGroup>
 
   <ItemGroup>
+<<<<<<< HEAD
     <ProjectReference Include="..\..\..\Play.Common\src\Play.Common\Play.Common.csproj" />
     <ProjectReference Include="..\Play.Identity.Contracts\Play.Identity.Contracts.csproj" />
 >>>>>>> Stashed changes
+=======
+    <ProjectReference Include="..\Play.Identity.Contracts\Play.Identity.Contracts.csproj" />
+>>>>>>> 5a3f1b2d043b2cdcdd4027a6a3c881bbf2d2c81b
   </ItemGroup>
 
 </Project>
