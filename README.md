@@ -1,2 +1,2 @@
 # MySampleMicroservices
-.Net 7 Sample microservices
+.Net 8 Sample microservices
